@@ -1,24 +1,34 @@
 package com.example.myquizapp
 
+import android.graphics.Color
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
-class QuizQuestionsActivity : AppCompatActivity() {
+class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 
-    private var progressBar : ProgressBar? = null
-    private var tvProgress : TextView? = null
-    private var tvQuestion : TextView? = null
-    private var image : ImageView? = null
+    private var mCurrentPosition: Int = 1
+    private var mQuestionsList: ArrayList<Question>? = null
+    private var mSelectedOptionPosition: Int = 0
 
-    private var optionOne : TextView? = null
-    private var optionTwo : TextView? = null
-    private var optionThree : TextView? = null
-    private var optionFour : TextView? = null
+    private var progressBar: ProgressBar? = null
+    private var tvProgress: TextView? = null
+    private var tvQuestion: TextView? = null
+    private var image: ImageView? = null
 
+    private var optionOne: TextView? = null
+    private var optionTwo: TextView? = null
+    private var optionThree: TextView? = null
+    private var optionFour: TextView? = null
+    private var submitBtn: Button? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,26 +44,107 @@ class QuizQuestionsActivity : AppCompatActivity() {
         optionTwo = findViewById(R.id.tv_option_two)
         optionThree = findViewById(R.id.tv_option_three)
         optionFour = findViewById(R.id.tv_option_four)
+        submitBtn = findViewById(R.id.btn_submit)
 
+        optionOne?.setOnClickListener(this)
+        optionTwo?.setOnClickListener(this)
+        optionThree?.setOnClickListener(this)
+        optionFour?.setOnClickListener(this)
+        submitBtn?.setOnClickListener(this)
 
+        mQuestionsList = Constants.getQuestions()
 
-        val questionsList = Constants.getQuestions()
-        Log.i("QuestionsList size is", "${questionsList.size}")
+        setQuestion()
 
-        for(i in questionsList){
-            Log.e("Questions", i.question)
-        }
+    }
 
-        var currentPosition = 1
-        val question : Question = questionsList[currentPosition - 1]
+    private fun setQuestion() {
+
+        val question: Question = mQuestionsList!![mCurrentPosition - 1]
         image?.setImageResource(question.image)
-        progressBar?.progress = currentPosition
-        tvProgress?.text = "$currentPosition/${progressBar?.max}"
+        progressBar?.progress = mCurrentPosition
+        tvProgress?.text = "$mCurrentPosition/${progressBar?.max}"
         tvQuestion?.text = question.question
         optionOne?.text = question.OptionOne
         optionTwo?.text = question.OptionTwo
         optionThree?.text = question.OptionThree
         optionFour?.text = question.OptionFour
 
+        if (mCurrentPosition == mQuestionsList!!.size) {
+            submitBtn?.text = "FINISH"
+        } else {
+            submitBtn?.text = "SUBMIT"
         }
+    }
+
+    private fun defaultOptionsView() {
+        val options = ArrayList<TextView>()
+        optionOne?.let {
+            options.add(0, it)
+        }
+        optionTwo?.let {
+            options.add(1, it)
+        }
+        optionThree?.let {
+            options.add(2, it)
+        }
+        optionFour?.let {
+            options.add(3, it)
+        }
+
+        for (opt in options) {
+            opt.setTextColor(Color.parseColor("#7A8089"))
+            opt.typeface = Typeface.DEFAULT
+            opt.background = ContextCompat.getDrawable(
+                this,
+                R.drawable.default_option_border_bg
+            )
+        }
+
+    }
+
+    private fun selectedOptionView(tv: TextView, selectedOptionNum: Int) {
+        defaultOptionsView()
+
+        mSelectedOptionPosition = selectedOptionNum
+        tv.setTextColor(Color.parseColor("#363A43"))
+        tv.setTypeface(tv.typeface, Typeface.BOLD)
+        tv.background = ContextCompat.getDrawable(
+            this,
+            R.drawable.selected_option_border_bg
+        )
+    }
+
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            R.id.tv_option_one -> {
+                optionOne?.let {
+                    selectedOptionView(it, 1)
+                }
+            }
+
+            R.id.tv_option_two -> {
+                optionTwo?.let {
+                    selectedOptionView(it, 2)
+                }
+            }
+
+            R.id.tv_option_three -> {
+                optionThree?.let {
+                    selectedOptionView(it, 3)
+                }
+
+            }
+
+            R.id.tv_option_four -> {
+                optionFour?.let {
+                    selectedOptionView(it, 4)
+                }
+            }
+
+            R.id.btn_submit ->{
+                //TODO
+            }
+        }
+    }
 }
