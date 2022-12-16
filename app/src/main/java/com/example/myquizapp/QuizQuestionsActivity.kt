@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
@@ -59,7 +60,7 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun setQuestion() {
-
+        defaultOptionsView()
         val question: Question = mQuestionsList!![mCurrentPosition - 1]
         image?.setImageResource(question.image)
         progressBar?.progress = mCurrentPosition
@@ -143,7 +144,68 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
             }
 
             R.id.btn_submit ->{
-                //TODO
+                if(mSelectedOptionPosition == 0){
+                    mCurrentPosition++
+
+                    when{
+                        mCurrentPosition <= mQuestionsList!!.size ->{
+                            setQuestion()
+                        }
+                        else ->{
+                            Toast.makeText(this, "Congrats you made it to the end", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                else{
+                    val question = mQuestionsList?.get(mCurrentPosition - 1)
+
+                    if(question!!.correctAnswer != mSelectedOptionPosition){
+                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    }
+                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+
+                    if(mCurrentPosition == mQuestionsList!!.size){
+                        submitBtn?.text = "Finish"
+                    }
+                    else{
+                        submitBtn?.text = "NEXT"
+                    }
+
+                    mSelectedOptionPosition = 0
+
+                }
+            }
+        }
+    }
+
+    private fun answerView(answer: Int, drawableView : Int){
+        when(answer){
+            1 ->{
+                optionOne?.background = ContextCompat.getDrawable(
+                    this,
+                    drawableView
+                )
+            }
+
+            2 ->{
+                optionTwo?.background = ContextCompat.getDrawable(
+                    this,
+                    drawableView
+                )
+            }
+
+            3 ->{
+                optionThree?.background = ContextCompat.getDrawable(
+                    this,
+                    drawableView
+                )
+            }
+
+            4 ->{
+                optionFour?.background = ContextCompat.getDrawable(
+                    this,
+                    drawableView
+                )
             }
         }
     }
